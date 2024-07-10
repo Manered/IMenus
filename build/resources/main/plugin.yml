@@ -1,0 +1,5 @@
+name: IMenus
+version: '1.0.0'
+main: dev.manere.imenus.TestPlugin
+api-version: '1.20'
+authors: [Manere_]
