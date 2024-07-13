@@ -1,6 +1,7 @@
 package dev.manere.imenus.menu;
 
 import dev.manere.imenus.button.Button;
+import dev.manere.imenus.button.ButtonEntry;
 import dev.manere.imenus.slot.MenuSlot;
 import org.jetbrains.annotations.NotNull;
 
@@ -93,8 +94,8 @@ public class MenuSelection {
     public static final MenuSelection NON_EMPTY_SLOTS = MenuSelection.selection(menu -> {
         final List<Integer> slots = new ArrayList<>();
 
-        for (final Map.Entry<MenuSlot, Button> entry : menu.buttons().buttons().entrySet()) {
-            final MenuSlot menuSlot = entry.getKey();
+        for (final ButtonEntry entry : menu.buttons().buttons()) {
+            final MenuSlot menuSlot = entry.slot();
             final int slot = menuSlot.slot();
             slots.add(slot);
         }

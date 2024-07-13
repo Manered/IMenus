@@ -28,13 +28,8 @@ public class MenuListener implements Listener {
         if (inventory == null) return;
 
         if (inventory.getHolder(false) instanceof NormalMenu menu) {
-            System.out.println(menu.buttons().buttons());
-
             final Button button = menu.buttons().button(MenuSlot.of(event.getRawSlot(), menu.page()));
-            if (button == null) {
-                System.out.println("bnf");
-                return;
-            }
+            if (button == null) return;
 
             final MenuClickEvent<NormalMenu> clickEvent = MenuClickEvent.event(
                 menu,
@@ -45,10 +40,7 @@ public class MenuListener implements Listener {
             if (clickEvent.cancelled()) event.setCancelled(true);
         } else if (inventory.getHolder(false) instanceof PagedMenu menu) {
             final Button button = menu.buttons().button(MenuSlot.of(event.getRawSlot(), menu.page()));
-            if (button == null) {
-                System.out.println("bnf");
-                return;
-            }
+            if (button == null) return;
 
             final MenuClickEvent<PagedMenu> clickEvent = MenuClickEvent.event(
                 menu,

@@ -4,6 +4,9 @@ import dev.manere.imenus.slot.MenuSlot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Manages the collection of buttons mapped to specific slots in a menu.
  */
 public class Buttons {
-    private final Map<MenuSlot, Button> buttons = new ConcurrentHashMap<>();
+    private final List<ButtonEntry> buttons = new ArrayList<>();
 
     private Buttons() {}
 
@@ -33,7 +36,11 @@ public class Buttons {
      */
     @Nullable
     public Button button(final @NotNull MenuSlot slot) {
-        return buttons.get(slot);
+        for (final ButtonEntry entry : buttons) {
+            if (entry.slot().equals(slot)) return entry.button();
+        }
+
+        return null;
     }
 
     /**
@@ -43,16 +50,17 @@ public class Buttons {
      * @param button the Button instance to be placed in the slot.
      */
     public void edit(final @NotNull MenuSlot slot, final @Nullable Button button) {
-        this.buttons.put(slot, button);
+        this.buttons.add(ButtonEntry.entry(slot, button));
     }
 
     /**
      * Retrieves the map of all buttons and their associated slots.
      *
-     * @return the map of MenuSlot to Button.
+     * @return the list of button entries.
+     * @see ButtonEntry
      */
     @NotNull
-    public Map<MenuSlot, Button> buttons() {
+    public List<ButtonEntry> buttons() {
         return buttons;
     }
 }

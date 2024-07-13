@@ -2,6 +2,7 @@ package dev.manere.imenus.menu;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.manere.imenus.button.Button;
+import dev.manere.imenus.button.ButtonEntry;
 import dev.manere.imenus.button.Buttons;
 import dev.manere.imenus.event.CloseEventHandler;
 import dev.manere.imenus.event.MenuClickEvent;
@@ -12,6 +13,7 @@ import dev.manere.imenus.item.PageItemProvider;
 import dev.manere.imenus.slot.MenuSlot;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,17 +39,23 @@ public class PagedMenu implements Menu, InventoryHolder {
 
     @Nullable
     private PageItemProvider previousPageItem = PageItemProvider.of(ctx -> PageItemData.data(size().size() - 1 - 5, ItemBuilder.item(Material.ARROW)
-        .name(Component.text("Previous Page", NamedTextColor.RED))
+        .name(Component.text("Previous Page", NamedTextColor.RED)
+            .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+        )
     ));
 
     @Nullable
     private PageItemProvider currentPageItem = PageItemProvider.of(ctx -> PageItemData.data(size().size() - 1 - 4, ItemBuilder.item(Material.PAPER)
-        .name(Component.text("Page: " + page(), NamedTextColor.GOLD))
+        .name(Component.text("Page: " + ctx.page(), NamedTextColor.GOLD)
+            .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+        )
     ));
 
     @Nullable
     private PageItemProvider nextPageItem = PageItemProvider.of(ctx -> PageItemData.data(size().size() - 1 - 3, ItemBuilder.item(Material.ARROW)
-        .name(Component.text("Next Page", NamedTextColor.GREEN))
+        .name(Component.text("Next Page", NamedTextColor.GREEN)
+            .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+        )
     ));
 
     private int page = 1;
@@ -100,13 +109,12 @@ public class PagedMenu implements Menu, InventoryHolder {
 
     @Override
     public int pages() {
-        final Map<MenuSlot, Button> map = buttons.buttons();
+        final List<ButtonEntry> buttons = this.buttons.buttons();
 
         int highestPage = 1;
 
-        for (final Map.Entry<MenuSlot, Button> entry : map.entrySet()) {
-            final MenuSlot slot = entry.getKey();
-
+        for (final ButtonEntry entry : buttons) {
+            final MenuSlot slot = entry.slot();
             final int page = slot.page();
 
             if (page > highestPage) highestPage = page;
@@ -131,22 +139,15 @@ public class PagedMenu implements Menu, InventoryHolder {
     public Menu open(final @NotNull Player player, final int page) {
         if (page > pages()) return open(player, pages());
 
+        inventory().clear();
+
         this.page = page;
-
-        for (final @NotNull Map.Entry<@NotNull MenuSlot, Button> entry : buttons().buttons().entrySet()) {
-            final MenuSlot slot = entry.getKey();
-            final Button button = entry.getValue();
-
-            if (slot.page() == page) {
-                inventory().setItem(slot.slot(), button.item());
-            }
-        }
 
         if (currentPageItem != null && pages() > 1) {
             final PageItemData data = currentPageItem.item(new PageItemProvider.Context(pages(), page()));
             final Button button = ItemBuilder.item(data.item()).asButton(MenuClickEvent::cancel);
 
-            button(data.slot(), button);
+            button(data.slot(), page, button);
         }
 
         if (nextPageItem != null && page() < pages()) {
@@ -157,7 +158,7 @@ public class PagedMenu implements Menu, InventoryHolder {
                 open(player, page + 1);
             });
 
-            button(data.slot(), button);
+            button(data.slot(), page, button);
         }
 
         if (previousPageItem != null && page() > 1) {
@@ -168,7 +169,20 @@ public class PagedMenu implements Menu, InventoryHolder {
                 open(player, page - 1);
             });
 
-            button(data.slot(), button);
+            button(data.slot(), page, button);
+        }
+
+        for (final ButtonEntry entry : buttons().buttons()) {
+            final MenuSlot slot = entry.slot();
+            final Button button = entry.button();
+
+            if (slot.page() == page) {
+                if (button != null) {
+                    inventory().setItem(slot.slot(), button.item());
+                } else {
+                    inventory.clear(slot.slot());
+                }
+            }
         }
 
         player.openInventory(inventory());

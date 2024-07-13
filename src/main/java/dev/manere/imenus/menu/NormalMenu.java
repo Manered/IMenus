@@ -2,6 +2,7 @@ package dev.manere.imenus.menu;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.manere.imenus.button.Button;
+import dev.manere.imenus.button.ButtonEntry;
 import dev.manere.imenus.button.Buttons;
 import dev.manere.imenus.event.CloseEventHandler;
 import dev.manere.imenus.item.PageItem;
@@ -97,11 +98,15 @@ public class NormalMenu implements Menu, InventoryHolder {
     public Menu open(final @NotNull Player player, final int page) {
         if (page != 1) throw new UnsupportedOperationException("A normal menu can not have more than 1 page!");
 
-        for (final @NotNull Entry<@NotNull MenuSlot, Button> entry : buttons().buttons().entrySet()) {
-            final MenuSlot slot = entry.getKey();
-            final Button button = entry.getValue();
+        for (final ButtonEntry entry : buttons().buttons()) {
+            final MenuSlot slot = entry.slot();
+            final Button button = entry.button();
 
-            inventory().setItem(slot.slot(), button.item());
+            if (button != null) {
+                inventory().setItem(slot.slot(), button.item());
+            } else {
+                inventory.clear(slot.slot());
+            }
         }
 
         player.openInventory(inventory());

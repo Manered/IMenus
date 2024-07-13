@@ -339,24 +339,9 @@ public interface Menu extends InventoryHolder {
     @NotNull
     @CanIgnoreReturnValue
     default Menu border(final @NotNull ItemStack item) {
-        for (int page = 0; page <= pages(); page++) {
-            final List<String> structure = new ArrayList<>(
-                List.of("b b b b b b b b b")
-            );
-
-            final int rows = size().size() / 9;
-
-            for (int i = 0; i < rows - 2; i++) {
-                structure.add("b . . . . . . . b");
-            }
-
-            structure.add("b b b b b b b b b");
-
-            structure(page, structure.toArray(String[]::new));
-        }
-
-        for (int page = 0; page <= pages(); page++) {
-            button(page, 'b', Button.button(item, MenuClickEvent::cancel));
+        for (int page = 1; page <= pages(); page++) {
+            int finalPage = page;
+            selection(MenuSelection.padding(), context -> context.menu().button(MenuSlot.of(context.slot(), finalPage), Button.button(item, MenuClickEvent::cancel)));
         }
 
         return this;
@@ -402,10 +387,15 @@ public interface Menu extends InventoryHolder {
 
         for (final V value : list) {
             while (skipSlots.contains(slot)) {
-                slot++;
+                if (slot < end) {
+                    slot++;
+                } else {
+                    slot = start;
+                    page++;
+                }
             }
 
-            if (slot >= end) {
+            if (slot > end) {
                 slot = start;
                 page++;
             }
