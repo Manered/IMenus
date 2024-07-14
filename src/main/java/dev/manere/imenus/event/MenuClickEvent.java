@@ -2,6 +2,7 @@ package dev.manere.imenus.event;
 
 import dev.manere.imenus.menu.Menu;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ public interface MenuClickEvent<M extends Menu> {
      * @return a new MenuClickEvent instance.
      */
     @NotNull
-    static <M extends Menu> MenuClickEvent<M> event(final @NotNull M menu, final @NotNull Player player, final @Nullable ItemStack item, final int slot) {
+    static <M extends Menu> MenuClickEvent<M> event(final @NotNull M menu, final @NotNull Player player, final @Nullable ItemStack item, final int slot, final @NotNull ClickType type) {
         return new MenuClickEvent<>() {
             private boolean cancelled = false;
 
@@ -60,6 +61,12 @@ public interface MenuClickEvent<M extends Menu> {
             public boolean cancelled() {
                 return cancelled;
             }
+
+            @NotNull
+            @Override
+            public ClickType type() {
+                return type;
+            }
         };
     }
 
@@ -77,7 +84,8 @@ public interface MenuClickEvent<M extends Menu> {
             menu,
             (Player) clickEvent.getView().getPlayer(),
             clickEvent.getCurrentItem(),
-            clickEvent.getRawSlot()
+            clickEvent.getRawSlot(),
+            clickEvent.getClick()
         );
     }
 
@@ -123,4 +131,12 @@ public interface MenuClickEvent<M extends Menu> {
      * @return true if cancelled, false otherwise.
      */
     boolean cancelled();
+
+    /**
+     * Retrieves the type of the mouse click.
+     *
+     * @return the type of the mouse click.
+     */
+    @NotNull
+    ClickType type();
 }
