@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -137,7 +138,7 @@ public class ItemBuilder {
      */
     @NotNull
     @CanIgnoreReturnValue
-    public ItemBuilder name(final @NotNull Component name) {
+    public ItemBuilder name(final @Nullable Component name) {
         return meta(meta -> meta.displayName(name));
     }
 
@@ -177,7 +178,9 @@ public class ItemBuilder {
         type(Material.PLAYER_HEAD);
 
         return meta(SkullMeta.class, meta -> {
-            if (owner != null) meta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+            CompletableFuture.runAsync(() -> {
+                if (owner != null) meta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+            });
         });
     }
 
@@ -426,7 +429,7 @@ public class ItemBuilder {
     @NotNull
     @CanIgnoreReturnValue
     public ItemBuilder glow() {
-        return enchant(Enchantment.LUCK, 1).add(ItemFlag.HIDE_ENCHANTS);
+        return enchant(Enchantment.LUCK_OF_THE_SEA, 1).add(ItemFlag.HIDE_ENCHANTS);
     }
 
     /**
@@ -448,7 +451,7 @@ public class ItemBuilder {
     @NotNull
     @CanIgnoreReturnValue
     public ItemBuilder removeGlow() {
-        return remove(Enchantment.LUCK).remove(ItemFlag.HIDE_ENCHANTS);
+        return remove(Enchantment.LUCK_OF_THE_SEA).remove(ItemFlag.HIDE_ENCHANTS);
     }
 
     /**

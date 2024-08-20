@@ -1,8 +1,10 @@
 package dev.manere.imenus.button;
 
+import com.google.common.collect.ImmutableList;
 import dev.manere.imenus.slot.MenuSlot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +62,8 @@ public class Buttons {
      * @see ButtonEntry
      */
     @NotNull
+    @Unmodifiable
     public List<ButtonEntry> buttons() {
-        return buttons;
+        return ImmutableList.copyOf(buttons);
     }
 }

@@ -11,11 +11,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A listener for handling menu-related events.
  */
+@ApiStatus.Internal
 public class MenuListener implements Listener {
     /**
      * Handles inventory click events.
@@ -23,7 +25,8 @@ public class MenuListener implements Listener {
      * @param event the inventory click event.
      */
     @EventHandler
-    public void handle(final @NotNull InventoryClickEvent event) {
+    @ApiStatus.Internal
+    private void handle(final @NotNull InventoryClickEvent event) {
         final Inventory inventory = event.getClickedInventory();
         if (inventory == null) return;
 
@@ -58,7 +61,8 @@ public class MenuListener implements Listener {
      * @param event the inventory close event.
      */
     @EventHandler
-    public void handle(final @NotNull InventoryCloseEvent event) {
+    @ApiStatus.Internal
+    private void handle(final @NotNull InventoryCloseEvent event) {
         if (event.getInventory().getHolder(false) instanceof NormalMenu menu) {
             final CloseEventHandler<Menu> closeHandler = menu.closeHandler();
             closeHandler.handleClose(MenuCloseEvent.event(menu, (Player) event.getPlayer()));

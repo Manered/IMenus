@@ -139,4 +139,17 @@ public interface MenuClickEvent<M extends Menu> {
      */
     @NotNull
     ClickType type();
+
+    default void reopen() {
+        menu().open(player());
+    }
+
+    default void redirect(final @NotNull Menu newMenu) {
+        redirect(newMenu, 1);
+    }
+
+    default void redirect(final @NotNull Menu newMenu, final int page) {
+        cancel();
+        newMenu.open(player(), page);
+    }
 }

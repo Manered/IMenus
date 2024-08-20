@@ -1,8 +1,10 @@
 package dev.manere.imenus.item;
 
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,8 +120,9 @@ public class ItemLore {
      * @return the list of lore components.
      */
     @NotNull
+    @Unmodifiable
     public List<Component> lore() {
-        return lore;
+        return ImmutableList.copyOf(lore);
     }
 
     /**

@@ -1,8 +1,10 @@
 package dev.manere.imenus.menu;
 
+import com.google.common.collect.ImmutableList;
 import dev.manere.imenus.button.Button;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -52,8 +54,9 @@ public abstract class PopulatedMenu<T> extends InitializedMenu<PagedMenu> {
      * @return the list of items.
      */
     @NotNull
+    @Unmodifiable
     public List<T> list() {
-        return list;
+        return ImmutableList.copyOf(list);
     }
 
     /**

@@ -1,6 +1,8 @@
 package dev.manere.imenus.event;
 
+import dev.manere.imenus.InventoryMenus;
 import dev.manere.imenus.menu.Menu;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,4 +52,16 @@ public interface MenuCloseEvent<M extends Menu> {
      */
     @NotNull
     Player player();
+
+    default void reopen() {
+        Bukkit.getScheduler().runTaskLater(InventoryMenus.pluginOrThrow(), () -> menu().open(player()), 1L);
+    }
+
+    default void redirect(final @NotNull Menu newMenu) {
+        redirect(newMenu, 1);
+    }
+
+    default void redirect(final @NotNull Menu newMenu, final int page) {
+        Bukkit.getScheduler().runTaskLater(InventoryMenus.pluginOrThrow(), () -> newMenu.open(player(), page), 1L);
+    }
 }
