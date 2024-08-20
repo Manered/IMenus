@@ -5,5 +5,3 @@ before-install:
   - sdk use java 21.0.4-graal
   - sdk install gradle 8.9
   - sdk use gradle 8.9
-install:
-  - './gradlew shadowJar'
