@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/IMenus.main.iml" filepath="$PROJECT_DIR$/.idea/modules/IMenus.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.manere.IMenus.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.manere.IMenus.main.iml" />
     </modules>
   </component>
 </project>
