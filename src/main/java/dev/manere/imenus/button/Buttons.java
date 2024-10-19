@@ -62,8 +62,7 @@ public class Buttons {
      * @see ButtonEntry
      */
     @NotNull
-    @Unmodifiable
     public List<ButtonEntry> buttons() {
-        return ImmutableList.copyOf(buttons);
+        return buttons;
     }
 }

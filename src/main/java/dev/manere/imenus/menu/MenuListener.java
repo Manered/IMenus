@@ -65,10 +65,10 @@ public class MenuListener implements Listener {
     private void handle(final @NotNull InventoryCloseEvent event) {
         if (event.getInventory().getHolder(false) instanceof NormalMenu menu) {
             final CloseEventHandler<Menu> closeHandler = menu.closeHandler();
-            closeHandler.handleClose(MenuCloseEvent.event(menu, (Player) event.getPlayer()));
+            closeHandler.handleClose(MenuCloseEvent.event(menu, (Player) event.getPlayer(), event.getReason()));
         } else if (event.getInventory().getHolder(false) instanceof PagedMenu menu) {
             final CloseEventHandler<Menu> closeHandler = menu.closeHandler();
-            closeHandler.handleClose(MenuCloseEvent.event(menu, (Player) event.getPlayer()));
+            closeHandler.handleClose(MenuCloseEvent.event(menu, (Player) event.getPlayer(), event.getReason()));
         }
     }
 }
