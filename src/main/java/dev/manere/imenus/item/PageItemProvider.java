@@ -36,7 +36,7 @@ public interface PageItemProvider {
      */
     @NotNull
     static Context context(final @NotNull Menu menu) {
-        return context(menu.pages(), menu.page());
+        return context(menu.getPages(), menu.getPage());
     }
 
     /**

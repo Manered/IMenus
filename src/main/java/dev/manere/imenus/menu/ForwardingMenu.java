@@ -22,88 +22,77 @@ public interface ForwardingMenu extends Menu {
      * @return the menu to forward;
      */
     @NotNull
-    Menu menu();
+    Menu getForwardedMenu();
 
     @Override
     default @NotNull Menu handleClose(final @NotNull CloseEventHandler<Menu> handler) {
-        return menu().handleClose(handler);
+        return getForwardedMenu().handleClose(handler);
     }
 
     @Override
     default @NotNull Menu button(final MenuSlot slot, final @NotNull Button button) {
-        return menu().button(slot, button);
+        return getForwardedMenu().button(slot, button);
     }
 
     @Override
     default @NotNull Menu item(final MenuSlot slot, final @NotNull ItemStack item) {
-        return menu().item(slot, item);
+        return getForwardedMenu().item(slot, item);
     }
 
     @Override
-    default @NotNull CloseEventHandler<Menu> closeHandler() {
-        return menu().closeHandler();
+    default @NotNull CloseEventHandler<Menu> getCloseHandler() {
+        return getForwardedMenu().getCloseHandler();
     }
 
     @Override
-    default @NotNull Buttons buttons() {
-        return menu().buttons();
+    default @NotNull Buttons getButtonManager() {
+        return getForwardedMenu().getButtonManager();
     }
 
     @Override
-    default int pages() {
-        return menu().pages();
+    default int getPages() {
+        return getForwardedMenu().getPages();
     }
 
     @Override
-    default int page() {
-        return menu().page();
+    default int getPage() {
+        return getForwardedMenu().getPage();
     }
 
     @Override
-    default boolean paginated() {
-        return menu().paginated();
+    default boolean isPaginated() {
+        return getForwardedMenu().isPaginated();
     }
 
     @Override
     @NotNull
     default Menu open(final @NotNull Player player) {
-        return menu().open(player);
+        return getForwardedMenu().open(player);
     }
 
     @Override
     default @NotNull Menu open(final @NotNull Player player, final int page) {
-        return menu().open(player, page);
+        return getForwardedMenu().open(player, page);
     }
 
     @Override
-    default @NotNull Component title() {
-        return menu().title();
-    }
-
-    @Override
-    @NotNull
-    default MenuSize size() {
-        return menu().size();
-    }
-
-    @Override
-    default @NotNull Inventory inventory() {
-        return menu().inventory();
+    default @NotNull Component getTitle() {
+        return getForwardedMenu().getTitle();
     }
 
     @Override
     @NotNull
-    default Menu refresh(final @NotNull Player player) {
-        return menu().refresh(player);
+    default MenuSize getSize() {
+        return getForwardedMenu().getSize();
     }
 
     @Override
     default @NotNull Inventory getInventory() {
-        return menu().getInventory();
+        return getForwardedMenu().getInventory();
     }
 
     @Override
     default @NotNull Menu button(final @NotNull PageItem item, final @NotNull PageItemProvider provider) {
-        return menu().button(item, provider);
+        return getForwardedMenu().button(item, provider);
     }
 }

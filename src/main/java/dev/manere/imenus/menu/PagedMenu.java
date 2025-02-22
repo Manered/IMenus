@@ -2,7 +2,6 @@ package dev.manere.imenus.menu;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.manere.imenus.button.Button;
-import dev.manere.imenus.button.ButtonEntry;
 import dev.manere.imenus.button.Buttons;
 import dev.manere.imenus.event.CloseEventHandler;
 import dev.manere.imenus.event.MenuClickEvent;
@@ -38,21 +37,21 @@ public class PagedMenu implements Menu, InventoryHolder {
     private final Buttons buttons = Buttons.empty();
 
     @Nullable
-    private PageItemProvider previousPageItem = PageItemProvider.of(ctx -> PageItemData.data(size().size() - 1 - 5, ItemBuilder.item(Material.ARROW)
+    private PageItemProvider previousPageItem = PageItemProvider.of(ctx -> PageItemData.data(getSize().size() - 1 - 5, ItemBuilder.item(Material.ARROW)
         .name(Component.text("Previous Page", NamedTextColor.RED)
             .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         )
     ));
 
     @Nullable
-    private PageItemProvider currentPageItem = PageItemProvider.of(ctx -> PageItemData.data(size().size() - 1 - 4, ItemBuilder.item(Material.PAPER)
+    private PageItemProvider currentPageItem = PageItemProvider.of(ctx -> PageItemData.data(getSize().size() - 1 - 4, ItemBuilder.item(Material.PAPER)
         .name(Component.text("Page: " + ctx.page(), NamedTextColor.GOLD)
             .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         )
     ));
 
     @Nullable
-    private PageItemProvider nextPageItem = PageItemProvider.of(ctx -> PageItemData.data(size().size() - 1 - 3, ItemBuilder.item(Material.ARROW)
+    private PageItemProvider nextPageItem = PageItemProvider.of(ctx -> PageItemData.data(getSize().size() - 1 - 3, ItemBuilder.item(Material.ARROW)
         .name(Component.text("Next Page", NamedTextColor.GREEN)
             .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
         )
@@ -81,7 +80,7 @@ public class PagedMenu implements Menu, InventoryHolder {
     @Override
     @CanIgnoreReturnValue
     public Menu button(final @NotNull MenuSlot slot, final @NotNull Button button) {
-        this.buttons().edit(slot, button);
+        this.getButtonManager().setButton(slot, button);
         return this;
     }
 
@@ -97,24 +96,24 @@ public class PagedMenu implements Menu, InventoryHolder {
 
     @NotNull
     @Override
-    public CloseEventHandler<Menu> closeHandler() {
+    public CloseEventHandler<Menu> getCloseHandler() {
         return closeHandler;
     }
 
     @NotNull
     @Override
-    public Buttons buttons() {
+    public Buttons getButtonManager() {
         return buttons;
     }
 
     @Override
-    public int pages() {
-        final List<ButtonEntry> buttons = this.buttons.buttons();
+    public int getPages() {
+        final Map<MenuSlot, Button> buttons = this.buttons.getButtons();
 
         int highestPage = 1;
 
-        for (final ButtonEntry entry : buttons) {
-            final MenuSlot slot = entry.slot();
+        for (final Map.Entry<MenuSlot, Button> entry : buttons.entrySet()) {
+            final MenuSlot slot = entry.getKey();
             final int page = slot.page();
 
             if (page > highestPage) highestPage = page;
@@ -124,12 +123,12 @@ public class PagedMenu implements Menu, InventoryHolder {
     }
 
     @Override
-    public int page() {
+    public int getPage() {
         return page;
     }
 
     @Override
-    public boolean paginated() {
+    public boolean isPaginated() {
         return true;
     }
 
@@ -137,21 +136,21 @@ public class PagedMenu implements Menu, InventoryHolder {
     @Override
     @CanIgnoreReturnValue
     public Menu open(final @NotNull Player player, final int page) {
-        if (page > pages()) return open(player, pages());
+        if (page > getPages()) return open(player, getPages());
 
-        inventory().clear();
+        getInventory().clear();
 
         this.page = page;
 
-        if (currentPageItem != null && pages() > 1) {
-            final PageItemData data = currentPageItem.item(new PageItemProvider.Context(pages(), page()));
+        if (currentPageItem != null && getPages() > 1) {
+            final PageItemData data = currentPageItem.item(new PageItemProvider.Context(getPages(), getPage()));
             final Button button = ItemBuilder.item(data.item()).asButton(MenuClickEvent::cancel);
 
             button(data.slot(), page, button);
         }
 
-        if (nextPageItem != null && page() < pages()) {
-            final PageItemData data = nextPageItem.item(new PageItemProvider.Context(pages(), page()));
+        if (nextPageItem != null && getPage() < getPages()) {
+            final PageItemData data = nextPageItem.item(new PageItemProvider.Context(getPages(), getPage()));
             final Button button = ItemBuilder.item(data.item()).asButton(event -> {
                 event.cancel();
 
@@ -161,8 +160,8 @@ public class PagedMenu implements Menu, InventoryHolder {
             button(data.slot(), page, button);
         }
 
-        if (previousPageItem != null && page() > 1) {
-            final PageItemData data = previousPageItem.item(new PageItemProvider.Context(pages(), page()));
+        if (previousPageItem != null && getPage() > 1) {
+            final PageItemData data = previousPageItem.item(new PageItemProvider.Context(getPages(), getPage()));
             final Button button = ItemBuilder.item(data.item()).asButton(event -> {
                 event.cancel();
 
@@ -172,32 +171,32 @@ public class PagedMenu implements Menu, InventoryHolder {
             button(data.slot(), page, button);
         }
 
-        for (final ButtonEntry entry : buttons().buttons()) {
-            final MenuSlot slot = entry.slot();
-            final Button button = entry.button();
+        for (final Map.Entry<MenuSlot, Button> entry : getButtonManager().getButtons().entrySet()) {
+            final MenuSlot slot = entry.getKey();
+            final Button button = entry.getValue();
 
             if (slot.page() == page) {
                 if (button != null) {
-                    inventory().setItem(slot.slot(), button.item());
+                    getInventory().setItem(slot.slot(), button.getItem());
                 } else {
-                    inventory.clear(slot.slot());
+                    getInventory().clear(slot.slot());
                 }
             }
         }
 
-        player.openInventory(inventory());
+        player.openInventory(getInventory());
         return this;
     }
 
     @NotNull
     @Override
-    public Component title() {
+    public Component getTitle() {
         return title;
     }
 
     @NotNull
     @Override
-    public MenuSize size() {
+    public MenuSize getSize() {
         return size;
     }
 

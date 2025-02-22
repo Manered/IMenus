@@ -1,6 +1,5 @@
 package dev.manere.imenus.slot;
 
-import dev.manere.imenus.menu.MenuSelection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

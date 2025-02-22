@@ -85,7 +85,7 @@ public interface Button {
      * @return the ItemStack representing the button.
      */
     @NotNull
-    ItemStack item();
+    ItemStack getItem();
 
     /**
      * Retrieves the click handler for this button.
@@ -93,7 +93,7 @@ public interface Button {
      * @return the click handler.
      */
     @NotNull
-    default Consumer<MenuClickEvent<? extends Menu>> handleClick() {
+    default Consumer<MenuClickEvent<? extends Menu>> getClickHandler() {
         return MenuClickEvent::cancel;
     }
 

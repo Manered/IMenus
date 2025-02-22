@@ -15,13 +15,13 @@ public class MenuButton implements Button {
 
     @NotNull
     @Override
-    public ItemStack item() {
+    public ItemStack getItem() {
         return item;
     }
 
     @NotNull
     @Override
-    public Consumer<MenuClickEvent<? extends Menu>> handleClick() {
+    public Consumer<MenuClickEvent<? extends Menu>> getClickHandler() {
         return handler;
     }
 

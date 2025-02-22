@@ -24,8 +24,6 @@ import java.util.function.Function;
  * Represents a menu in the inventory GUI.
  */
 public interface Menu extends InventoryHolder {
-    Map<Integer, Map<String, Integer>> structures = new ConcurrentHashMap<>();
-
     /**
      * Creates a new normal menu.
      *
@@ -140,7 +138,7 @@ public interface Menu extends InventoryHolder {
     @NotNull
     @CanIgnoreReturnValue
     default Menu button(final int page, final @NotNull String character, final @NotNull Button button) {
-        return button(MenuSlot.of(structures.get(page).get(character), page), button);
+        return button(MenuSlot.of(getStructures().get(page).get(character), page), button);
     }
 
     @NotNull
@@ -152,7 +150,7 @@ public interface Menu extends InventoryHolder {
     @NotNull
     @CanIgnoreReturnValue
     default Menu item(final int page, final @NotNull String character, final @NotNull ItemStack item) {
-        return item(MenuSlot.of(structures.get(page).get(character), page), item);
+        return item(MenuSlot.of(getStructures().get(page).get(character), page), item);
     }
 
     @NotNull
@@ -161,13 +159,18 @@ public interface Menu extends InventoryHolder {
         return item(1, character, item);
     }
 
+    @NotNull
+    default Map<Integer, Map<String, Integer>> getStructures() {
+        return new ConcurrentHashMap<>();
+    }
+
     /**
      * Gets the close event handler for the menu.
      *
      * @return the close event handler.
      */
     @NotNull
-    default CloseEventHandler<Menu> closeHandler() {
+    default CloseEventHandler<Menu> getCloseHandler() {
         return event -> {};
     }
 
@@ -177,28 +180,28 @@ public interface Menu extends InventoryHolder {
      * @return the buttons in the menu.
      */
     @NotNull
-    Buttons buttons();
+    Buttons getButtonManager();
 
     /**
      * Gets the number of pages in the menu.
      *
      * @return the number of pages.
      */
-    int pages();
+    int getPages();
 
     /**
      * Gets the current page of the menu.
      *
      * @return the current page.
      */
-    int page();
+    int getPage();
 
     /**
      * Checks if the menu is paginated.
      *
      * @return true if the menu is paginated, false otherwise.
      */
-    boolean paginated();
+    boolean isPaginated();
 
     /**
      * Opens the menu for the specified player.
@@ -229,7 +232,7 @@ public interface Menu extends InventoryHolder {
      * @return the title of the menu.
      */
     @NotNull
-    default Component title() {
+    default Component getTitle() {
         return Component.empty();
     }
 
@@ -239,31 +242,8 @@ public interface Menu extends InventoryHolder {
      * @return the size of the menu.
      */
     @NotNull
-    default MenuSize size() {
+    default MenuSize getSize() {
         return MenuSize.rows(3);
-    }
-
-    /**
-     * Gets the inventory of the menu.
-     *
-     * @return the inventory of the menu.
-     */
-    @NotNull
-    default Inventory inventory() {
-        return getInventory();
-    }
-
-    /**
-     * Refreshes the menu for the specified player.
-     *
-     * @param player the player to refresh the menu for.
-     * @return the updated {@link Menu} instance.
-     */
-    @NotNull
-    @CanIgnoreReturnValue
-    default Menu refresh(final @NotNull Player player) {
-        player.updateInventory();
-        return this;
     }
 
     /**
@@ -295,7 +275,7 @@ public interface Menu extends InventoryHolder {
     @NotNull
     @CanIgnoreReturnValue
     default Menu structure(final @NotNull String @NotNull ... structure) {
-        return structure(page(), structure);
+        return structure(getPage(), structure);
     }
 
     /**
@@ -313,7 +293,7 @@ public interface Menu extends InventoryHolder {
         int row = 0;
 
         for (final String rowStructure : structure) {
-            if (row < size().size() / 9) {
+            if (row < getSize().size() / 9) {
                 for (int column = 0; column < rowStructure.split(" ").length && column < 9; column++) {
                     final String character = rowStructure.split(" ")[column];
                     int slot = column + row * 9;
@@ -325,8 +305,8 @@ public interface Menu extends InventoryHolder {
             }
         }
 
-        this.structures.clear();
-        this.structures.putAll(structures);
+        getStructures().clear();
+        getStructures().putAll(structures);
         return this;
     }
 
@@ -339,7 +319,7 @@ public interface Menu extends InventoryHolder {
     @NotNull
     @CanIgnoreReturnValue
     default Menu border(final @NotNull ItemStack item) {
-        for (int page = 1; page <= pages(); page++) {
+        for (int page = 1; page <= getPages(); page++) {
             int finalPage = page;
             selection(MenuSelection.padding(), context -> context.menu().button(MenuSlot.of(context.slot(), finalPage), Button.button(item, MenuClickEvent::cancel)));
         }
@@ -383,7 +363,7 @@ public interface Menu extends InventoryHolder {
         int page = 1;
         int slot = start;
 
-        if (!paginated()) throw new UnsupportedOperationException();
+        if (!isPaginated()) throw new UnsupportedOperationException();
 
         for (final V value : list) {
             while (skipSlots.contains(slot)) {

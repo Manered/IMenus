@@ -2,7 +2,6 @@ package dev.manere.imenus.menu;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.manere.imenus.button.Button;
-import dev.manere.imenus.button.ButtonEntry;
 import dev.manere.imenus.button.Buttons;
 import dev.manere.imenus.event.CloseEventHandler;
 import dev.manere.imenus.item.PageItem;
@@ -16,7 +15,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map.Entry;
+import java.util.Map;
 
 /**
  * A {@link Menu} that can not have pages.
@@ -51,7 +50,7 @@ public class NormalMenu implements Menu, InventoryHolder {
     @Override
     @CanIgnoreReturnValue
     public Menu button(final @NotNull MenuSlot slot, final @NotNull Button button) {
-        this.buttons().edit(slot, button);
+        this.getButtonManager().setButton(slot, button);
         return this;
     }
 
@@ -67,28 +66,28 @@ public class NormalMenu implements Menu, InventoryHolder {
 
     @NotNull
     @Override
-    public CloseEventHandler<Menu> closeHandler() {
+    public CloseEventHandler<Menu> getCloseHandler() {
         return closeHandler;
     }
 
     @NotNull
     @Override
-    public Buttons buttons() {
+    public Buttons getButtonManager() {
         return buttons;
     }
 
     @Override
-    public int pages() {
+    public int getPages() {
         return 1;
     }
 
     @Override
-    public int page() {
+    public int getPage() {
         return 1;
     }
 
     @Override
-    public boolean paginated() {
+    public boolean isPaginated() {
         return false;
     }
 
@@ -98,30 +97,30 @@ public class NormalMenu implements Menu, InventoryHolder {
     public Menu open(final @NotNull Player player, final int page) {
         if (page != 1) throw new UnsupportedOperationException("A normal menu can not have more than 1 page!");
 
-        for (final ButtonEntry entry : buttons().buttons()) {
-            final MenuSlot slot = entry.slot();
-            final Button button = entry.button();
+        for (final Map.Entry<MenuSlot, Button> entry : getButtonManager().getButtons().entrySet()) {
+            final MenuSlot slot = entry.getKey();
+            final Button button = entry.getValue();
 
             if (button != null) {
-                inventory().setItem(slot.slot(), button.item());
+                getInventory().setItem(slot.slot(), button.getItem());
             } else {
-                inventory.clear(slot.slot());
+                getInventory().clear(slot.slot());
             }
         }
 
-        player.openInventory(inventory());
+        player.openInventory(getInventory());
         return this;
     }
 
     @NotNull
     @Override
-    public Component title() {
+    public Component getTitle() {
         return title;
     }
 
     @NotNull
     @Override
-    public MenuSize size() {
+    public MenuSize getSize() {
         return size;
     }
 

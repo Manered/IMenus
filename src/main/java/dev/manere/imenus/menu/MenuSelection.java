@@ -1,7 +1,6 @@
 package dev.manere.imenus.menu;
 
 import dev.manere.imenus.button.Button;
-import dev.manere.imenus.button.ButtonEntry;
 import dev.manere.imenus.slot.MenuSlot;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +47,7 @@ public class MenuSelection {
     /**
      * Predefined MenuSelection representing the padding slots of a menu.
      */
-    public static final MenuSelection PADDING = MenuSelection.selection(menu -> switch (menu.size().rows()) {
+    public static final MenuSelection PADDING = MenuSelection.selection(menu -> switch (menu.getSize().rows()) {
         case 3 -> List.of(
             0, 1, 2, 3, 4, 5, 6, 7, 8,
             9, 17,
@@ -94,8 +93,8 @@ public class MenuSelection {
     public static final MenuSelection NON_EMPTY_SLOTS = MenuSelection.selection(menu -> {
         final List<Integer> slots = new ArrayList<>();
 
-        for (final ButtonEntry entry : menu.buttons().buttons()) {
-            final MenuSlot menuSlot = entry.slot();
+        for (final Map.Entry<MenuSlot, Button> entry : menu.getButtonManager().getButtons().entrySet()) {
+            final MenuSlot menuSlot = entry.getKey();
             final int slot = menuSlot.slot();
             slots.add(slot);
         }
@@ -141,7 +140,7 @@ public class MenuSelection {
     public static final MenuSelection ALL_SLOTS = MenuSelection.selection(menu -> {
         final List<Integer> slots = new ArrayList<>();
 
-        for (int i = 0; i < menu.size().size(); i++) {
+        for (int i = 0; i < menu.getSize().size(); i++) {
             slots.add(i);
         }
 

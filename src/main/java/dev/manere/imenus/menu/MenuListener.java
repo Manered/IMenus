@@ -31,7 +31,7 @@ public class MenuListener implements Listener {
         if (inventory == null) return;
 
         if (inventory.getHolder(false) instanceof NormalMenu menu) {
-            final Button button = menu.buttons().button(MenuSlot.of(event.getRawSlot(), menu.page()));
+            final Button button = menu.getButtonManager().getButton(MenuSlot.of(event.getRawSlot(), menu.getPage())).orElse(null);
             if (button == null) return;
 
             final MenuClickEvent<NormalMenu> clickEvent = MenuClickEvent.event(
@@ -39,10 +39,10 @@ public class MenuListener implements Listener {
                 event
             );
 
-            button.handleClick().accept(clickEvent);
+            button.getClickHandler().accept(clickEvent);
             if (clickEvent.cancelled()) event.setCancelled(true);
         } else if (inventory.getHolder(false) instanceof PagedMenu menu) {
-            final Button button = menu.buttons().button(MenuSlot.of(event.getRawSlot(), menu.page()));
+            final Button button = menu.getButtonManager().getButton(MenuSlot.of(event.getRawSlot(), menu.getPage())).orElse(null);
             if (button == null) return;
 
             final MenuClickEvent<PagedMenu> clickEvent = MenuClickEvent.event(
@@ -50,7 +50,7 @@ public class MenuListener implements Listener {
                 event
             );
 
-            button.handleClick().accept(clickEvent);
+            button.getClickHandler().accept(clickEvent);
             if (clickEvent.cancelled()) event.setCancelled(true);
         }
     }
@@ -64,10 +64,10 @@ public class MenuListener implements Listener {
     @ApiStatus.Internal
     private void handle(final @NotNull InventoryCloseEvent event) {
         if (event.getInventory().getHolder(false) instanceof NormalMenu menu) {
-            final CloseEventHandler<Menu> closeHandler = menu.closeHandler();
+            final CloseEventHandler<Menu> closeHandler = menu.getCloseHandler();
             closeHandler.handleClose(MenuCloseEvent.event(menu, (Player) event.getPlayer(), event.getReason()));
         } else if (event.getInventory().getHolder(false) instanceof PagedMenu menu) {
-            final CloseEventHandler<Menu> closeHandler = menu.closeHandler();
+            final CloseEventHandler<Menu> closeHandler = menu.getCloseHandler();
             closeHandler.handleClose(MenuCloseEvent.event(menu, (Player) event.getPlayer(), event.getReason()));
         }
     }
