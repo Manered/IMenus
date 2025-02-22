@@ -51,6 +51,8 @@ public class NormalMenu implements Menu, InventoryHolder {
     @CanIgnoreReturnValue
     public Menu button(final @NotNull MenuSlot slot, final @NotNull Button button) {
         this.getButtonManager().setButton(slot, button);
+        getInventory().setItem(slot.slot(), button.getItem());
+
         return this;
     }
 

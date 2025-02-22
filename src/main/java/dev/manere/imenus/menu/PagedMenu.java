@@ -81,6 +81,11 @@ public class PagedMenu implements Menu, InventoryHolder {
     @CanIgnoreReturnValue
     public Menu button(final @NotNull MenuSlot slot, final @NotNull Button button) {
         this.getButtonManager().setButton(slot, button);
+
+        if (slot.page() == getPage()) {
+            getInventory().setItem(slot.slot(), button.getItem());
+        }
+
         return this;
     }
 
