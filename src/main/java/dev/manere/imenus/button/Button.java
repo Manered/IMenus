@@ -1,119 +1,98 @@
 package dev.manere.imenus.button;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import dev.manere.imenus.event.MenuClickEvent;
-import dev.manere.imenus.menu.Menu;
+import dev.manere.imenus.event.action.ClickAction;
+import dev.manere.imenus.InventoryMenus;
+import dev.manere.imenus.event.MenuEvent;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Consumer;
+import java.util.UUID;
 
-/**
- * Represents a clickable button in a menu.
- */
-public interface Button {
-    /**
-     * Creates a new instance of a menu button.
-     *
-     * @return a new MenuButton instance.
-     */
-    @NotNull
-    @CanIgnoreReturnValue
-    static Button button() {
-        return new MenuButton();
+public final class Button {
+    private final UUID uuid = UUID.randomUUID();
+    private final ItemStack item;
+    private final ClickAction action;
+
+    public Button(final @NotNull ItemStack item, final @Nullable ClickAction action) {
+        this.item = item;
+        this.action = action != null ? action : InventoryMenus.API.getConfig()
+            .get(InventoryMenus.Options.DEFAULT_BUTTON_CLICK_BEHAVIOUR)
+            .orElse(MenuEvent.Cancellable::cancel);
     }
 
-    /**
-     * Creates a new instance of a menu button with a specific item.
-     *
-     * @param item the ItemStack representing the button.
-     * @return a new MenuButton instance initialized with the item.
-     */
-    @NotNull
-    @CanIgnoreReturnValue
-    static Button button(final @NotNull ItemStack item) {
-        return button()
-            .item(item);
+    public Button(final @NotNull ItemStack item) {
+        this(item, MenuEvent.Cancellable::cancel);
     }
 
-    /**
-     * Creates a new instance of a menu button with a specific item and click handler.
-     *
-     * @param item the ItemStack representing the button.
-     * @param handler the click handler for the button.
-     * @return a new MenuButton instance initialized with the item and click handler.
-     */
     @NotNull
-    @CanIgnoreReturnValue
-    static Button button(final @NotNull ItemStack item, final @NotNull Consumer<MenuClickEvent<? extends Menu>> handler) {
-        return button()
-            .item(item)
-            .handleClick(handler);
+    public static Button button(final @NotNull ItemStack item, final @NotNull ClickAction action) {
+        return new Button(item, action);
     }
 
-    /**
-     * Creates a new instance of a menu button with a click handler.
-     *
-     * @param handler the click handler for the button.
-     * @return a new MenuButton instance initialized with the click handler.
-     */
     @NotNull
-    @CanIgnoreReturnValue
-    static Button button(final @NotNull Consumer<MenuClickEvent<? extends Menu>> handler) {
-        return button()
-            .handleClick(handler);
+    public static Button button(final @NotNull ItemStack item) {
+        return new Button(item);
     }
 
-    /**
-     * Creates a new instance of a menu button with a click handler and a specific item.
-     *
-     * @param handler the click handler for the button.
-     * @param item the ItemStack representing the button.
-     * @return a new MenuButton instance initialized with the click handler and item.
-     */
     @NotNull
-    @CanIgnoreReturnValue
-    static Button button(final @NotNull Consumer<MenuClickEvent<? extends Menu>> handler, final @NotNull ItemStack item) {
-        return button()
-            .item(item)
-            .handleClick(handler);
+    public static Builder builder() {
+        return new Builder();
     }
 
-    /**
-     * Retrieves the ItemStack representing this button.
-     *
-     * @return the ItemStack representing the button.
-     */
-    @NotNull
-    ItemStack getItem();
-
-    /**
-     * Retrieves the click handler for this button.
-     *
-     * @return the click handler.
-     */
-    @NotNull
-    default Consumer<MenuClickEvent<? extends Menu>> getClickHandler() {
-        return MenuClickEvent::cancel;
+    @ApiStatus.Internal
+    public void register() {
+        item.editMeta(meta -> meta.getPersistentDataContainer()
+            .set(NamespacedKey.minecraft("inventory_menus"), PersistentDataType.STRING, uuid.toString())
+        );
     }
 
-    /**
-     * Sets the ItemStack representing this button.
-     *
-     * @param item the ItemStack representing the button.
-     * @return this Button instance for chaining.
-     */
-    @NotNull
-    @CanIgnoreReturnValue
-    Button item(final @NotNull ItemStack item);
+    public static class Builder {
+        private ItemStack item;
+        private ClickAction action = MenuEvent.Cancellable::cancel;
 
-    /**
-     * Sets the click handler for this button.
-     *
-     * @param handler the click handler for the button.
-     * @return this Button instance for chaining.
-     */
+        @NotNull
+        @CanIgnoreReturnValue
+        public Builder setItem(final @NotNull ItemStack item) {
+            this.item = item;
+            return this;
+        }
+
+        @NotNull
+        @CanIgnoreReturnValue
+        public Builder setAction(final @Nullable ClickAction action) {
+            this.action = action;
+            return this;
+        }
+
+        @NotNull
+        public Button build() {
+            return new Button(item, action);
+        }
+    }
+
     @NotNull
-    @CanIgnoreReturnValue
-    Button handleClick(final @NotNull Consumer<MenuClickEvent<? extends Menu>> handler);
+    public ItemStack getItem() {
+        return item;
+    }
+
+    @NotNull
+    public ClickAction getAction() {
+        return action;
+    }
+
+    @NotNull
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return "Button[uuid = " + uuid + "]";
+    }
 }
