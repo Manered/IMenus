@@ -45,6 +45,7 @@ public final class InventoryMenus implements Listener {
     @CanIgnoreReturnValue
     public InventoryMenus register(final @NotNull JavaPlugin plugin) {
         this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
         return this;
     }
 

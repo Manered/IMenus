@@ -210,7 +210,27 @@ public class Menu implements InventoryHolder {
     @NotNull
     @Unmodifiable
     public Map<Slot, Button> getButtons() {
-        return Map.copyOf(buttons);
+        return Map.copyOf(new HashMap<>(buttons));
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu clearButtons() {
+        this.buttons.clear();
+        return this;
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu clearInventory() {
+        this.inventory.clear();
+        return this;
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu clear() {
+        return clearButtons().clearInventory();
     }
 
     @NotNull
