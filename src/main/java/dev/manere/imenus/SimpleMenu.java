@@ -38,7 +38,7 @@ public abstract class SimpleMenu {
         open(() -> this);
     }
 
-    public abstract void init(final @NotNull Status status);
+    public abstract void init(final @NotNull CallbackStatus status);
 
     public void handle(final @NotNull CloseEvent event) {}
     public void handle(final @NotNull DragEvent event) {}
@@ -51,11 +51,6 @@ public abstract class SimpleMenu {
     @NotNull
     public Player getPlayer() {
         return player;
-    }
-
-    @FunctionalInterface
-    public interface Status {
-        void update();
     }
 
     @NotNull

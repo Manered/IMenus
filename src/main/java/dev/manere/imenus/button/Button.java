@@ -1,6 +1,7 @@
 package dev.manere.imenus.button;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import dev.manere.imenus.InventoryMenusOptions;
 import dev.manere.imenus.event.action.ClickAction;
 import dev.manere.imenus.InventoryMenus;
 import dev.manere.imenus.event.MenuEvent;
@@ -21,7 +22,7 @@ public final class Button {
     public Button(final @NotNull ItemStack item, final @Nullable ClickAction action) {
         this.item = item;
         this.action = action != null ? action : InventoryMenus.API.getConfig()
-            .get(InventoryMenus.Options.DEFAULT_BUTTON_CLICK_BEHAVIOUR)
+            .get(InventoryMenusOptions.DEFAULT_BUTTON_CLICK_BEHAVIOUR)
             .orElse(MenuEvent.Cancellable::cancel);
     }
 

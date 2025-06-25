@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 public class Menu implements InventoryHolder {
     private final Map<Slot, Button> buttons = new HashMap<>();
@@ -210,7 +211,7 @@ public class Menu implements InventoryHolder {
     @NotNull
     @Unmodifiable
     public Map<Slot, Button> getButtons() {
-        return Map.copyOf(new HashMap<>(buttons));
+        return Map.copyOf(buttons);
     }
 
     @NotNull
@@ -242,9 +243,9 @@ public class Menu implements InventoryHolder {
         runSync(() -> {
             getInventory().clear();
 
-            final PaginationItem nextPageItem = InventoryMenus.API.getConfig().get(InventoryMenus.Options.NEXT_PAGE).orElse(null);
-            final PaginationItem currentPageItem = InventoryMenus.API.getConfig().get(InventoryMenus.Options.CURRENT_PAGE).orElse(null);
-            final PaginationItem previousPageItem = InventoryMenus.API.getConfig().get(InventoryMenus.Options.PREVIOUS_PAGE).orElse(null);
+            final PaginationItem nextPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.NEXT_PAGE).orElse(null);
+            final PaginationItem currentPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.CURRENT_PAGE).orElse(null);
+            final PaginationItem previousPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.PREVIOUS_PAGE).orElse(null);
 
             if (currentPageItem != null && getPages() > 1) setPaginationButton(page, currentPageItem);
             if (nextPageItem != null && getPage() < getPages()) setPaginationButton(page, nextPageItem);
@@ -305,8 +306,10 @@ public class Menu implements InventoryHolder {
 
         if (getRows() < 3) return this;
 
-        int[] topSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-        int[] bottomSlots = {getSize() - 1, getSize() - 2, getSize() - 3, getSize() - 4, getSize() - 5, getSize() - 6, getSize() - 7, getSize() - 8, getSize() - 9};
+        final int[] topSlots = IntStream.range(0, 9).toArray();
+        final int[] bottomSlots = IntStream.range(0, 9)
+            .map(i -> getSize() - 1 - i)
+            .toArray();
 
         for (int slot : topSlots) {
             setButton(page, slot, item, behaviour);

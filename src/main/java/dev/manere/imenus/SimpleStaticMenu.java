@@ -16,7 +16,7 @@ public class SimpleStaticMenu extends SimpleMenu {
     }
 
     @Override
-    public void init(final @NotNull Status status) {
+    public void init(final @NotNull CallbackStatus status) {
         handler.accept(menu);
         status.update();
     }
