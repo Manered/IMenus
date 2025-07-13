@@ -52,6 +52,9 @@ public class Menu implements InventoryHolder {
     public static final Function<Component, Menu> CHEST_3x9 = title -> Menu.menu(title, 3);
 
     @NotNull
+    public static final Function<Component, Menu> SMALL_CHEST = CHEST_3x9;
+
+    @NotNull
     public static final Function<Component, Menu> CHEST_4x9 = title -> Menu.menu(title, 4);
 
     @NotNull
@@ -59,6 +62,9 @@ public class Menu implements InventoryHolder {
 
     @NotNull
     public static final Function<Component, Menu> CHEST_6x9 = title -> Menu.menu(title, 6);
+
+    @NotNull
+    public static final Function<Component, Menu> LARGE_CHEST = CHEST_6x9;
 
     @NotNull
     public static Menu menu(final @NotNull Component title, final int rows) {
@@ -89,14 +95,14 @@ public class Menu implements InventoryHolder {
     public Menu setButton(final @NotNull Slot slot, final @Nullable Button button) {
         if (button == null) {
             buttons.remove(slot);
-            if (this.getPage() == slot.getPage()) runSync(() -> inventory.setItem(slot.getIndex(), null));
+            if (this.getPage() == slot.getPage()) inventory.setItem(slot.getIndex(), null);
             return this;
         }
 
         button.register();
         buttons.put(slot, button);
 
-        if (this.getPage() == slot.getPage()) runSync(() -> inventory.setItem(slot.getIndex(), button.getItem()));
+        if (this.getPage() == slot.getPage()) inventory.setItem(slot.getIndex(), button.getItem());
         return this;
     }
 
@@ -240,38 +246,31 @@ public class Menu implements InventoryHolder {
         if (page > getPages()) return open(player, getPages());
         this.page = page;
 
-        runSync(() -> {
-            getInventory().clear();
+        getInventory().clear();
 
-            final PaginationItem nextPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.NEXT_PAGE).orElse(null);
-            final PaginationItem currentPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.CURRENT_PAGE).orElse(null);
-            final PaginationItem previousPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.PREVIOUS_PAGE).orElse(null);
+        final PaginationItem nextPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.NEXT_PAGE).orElse(null);
+        final PaginationItem currentPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.CURRENT_PAGE).orElse(null);
+        final PaginationItem previousPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.PREVIOUS_PAGE).orElse(null);
 
-            if (currentPageItem != null && getPages() > 1) setPaginationButton(page, currentPageItem);
-            if (nextPageItem != null && getPage() < getPages()) setPaginationButton(page, nextPageItem);
-            if (previousPageItem != null && getPage() > 1) setPaginationButton(page, previousPageItem);
+        if (currentPageItem != null && getPages() > 1) setPaginationButton(page, currentPageItem);
+        if (nextPageItem != null && getPage() < getPages()) setPaginationButton(page, nextPageItem);
+        if (previousPageItem != null && getPage() > 1) setPaginationButton(page, previousPageItem);
 
-            for (final Map.Entry<Slot, Button> entry : getButtons().entrySet()) {
-                final Slot slot = entry.getKey();
-                final Button button = entry.getValue();
+        for (final Map.Entry<Slot, Button> entry : getButtons().entrySet()) {
+            final Slot slot = entry.getKey();
+            final Button button = entry.getValue();
 
-                if (slot.getPage() == page) {
-                    if (button != null) {
-                        getInventory().setItem(slot.getIndex(), button.getItem());
-                    } else {
-                        getInventory().clear(slot.getIndex());
-                    }
+            if (slot.getPage() == page) {
+                if (button != null) {
+                    getInventory().setItem(slot.getIndex(), button.getItem());
+                } else {
+                    getInventory().clear(slot.getIndex());
                 }
             }
+        }
 
-            player.openInventory(getInventory());
-        });
-
+        player.openInventory(getInventory());
         return this;
-    }
-
-    private void runSync(final @NotNull Runnable runnable) {
-        Bukkit.getScheduler().runTask(InventoryMenus.API.getPlugin(), runnable);
     }
 
     @NotNull

@@ -6,6 +6,7 @@ import dev.manere.imenus.button.ButtonContext;
 import dev.manere.imenus.event.ClickEvent;
 import dev.manere.imenus.event.CloseEvent;
 import dev.manere.imenus.event.DragEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public final class InventoryMenus implements Listener {
     public static final InventoryMenus API = new InventoryMenus();
@@ -32,10 +34,34 @@ public final class InventoryMenus implements Listener {
     private InventoryMenus() {}
 
     @NotNull
+    public Menu createMenu(final @NotNull Component title, final int rows) {
+        return Menu.menu(title, rows);
+    }
+
+    @NotNull
+    public SimpleStaticMenu.Builder createStaticMenu(final @NotNull Player player) {
+        return SimpleStaticMenu.builder(player);
+    }
+
+    @NotNull
     @CanIgnoreReturnValue
     public InventoryMenus register(final @NotNull JavaPlugin plugin) {
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
+        return this;
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public InventoryMenus register(final @NotNull JavaPlugin plugin, final @NotNull Consumer<InventoryMenusConfig> consumer) {
+        return register(plugin)
+            .configure(consumer);
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public InventoryMenus configure(final @NotNull Consumer<InventoryMenusConfig> consumer) {
+        consumer.accept(getConfig());
         return this;
     }
 

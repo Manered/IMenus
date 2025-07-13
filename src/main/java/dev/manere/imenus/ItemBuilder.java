@@ -1,19 +1,16 @@
 package dev.manere.imenus;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.manere.imenus.button.Button;
 import dev.manere.imenus.event.action.ClickAction;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +18,6 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 public class ItemBuilder {
@@ -69,23 +65,6 @@ public class ItemBuilder {
         loreBuilder.accept(builder);
 
         this.item.editMeta(meta -> meta.lore(builder.build()));
-        return this;
-    }
-
-    @NotNull
-    @CanIgnoreReturnValue
-    public ItemBuilder setSkull(final @NotNull UUID uuid) {
-        this.item = item.withType(Material.PLAYER_HEAD);
-
-        this.item.editMeta(SkullMeta.class, meta -> {
-            final PlayerProfile profile = Bukkit.createProfile(uuid);
-
-            Bukkit.getAsyncScheduler().runNow(InventoryMenus.API.getPlugin(), task -> {
-                profile.complete(true);
-                Bukkit.getScheduler().runTask(InventoryMenus.API.getPlugin(), () -> meta.setPlayerProfile(profile));
-            });
-        });
-
         return this;
     }
 

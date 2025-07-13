@@ -8,16 +8,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 public class SimpleStaticMenu extends SimpleMenu {
-    private final Consumer<Menu> handler;
+    private final Consumer<Menu> config;
 
-    private SimpleStaticMenu(final @NotNull Player player, final @NotNull Component title, final int rows, final @NotNull Consumer<Menu> handler) {
+    private SimpleStaticMenu(final @NotNull Player player, final @NotNull Component title, final int rows, final @NotNull Consumer<Menu> config) {
         super(player, title, rows);
-        this.handler = handler;
+        this.config = config;
     }
 
     @Override
     public void init(final @NotNull CallbackStatus status) {
-        handler.accept(menu);
+        config.accept(menu);
         status.update();
     }
 
@@ -31,7 +31,7 @@ public class SimpleStaticMenu extends SimpleMenu {
 
         private Component title = Component.empty();
         private int rows = 3;
-        private Consumer<Menu> handler = menu -> {};
+        private Consumer<Menu> config = menu -> {};
 
         private Builder(final @NotNull Player player) {
             this.player = player;
@@ -60,14 +60,14 @@ public class SimpleStaticMenu extends SimpleMenu {
         }
 
         @NotNull
-        public Builder handle(final @NotNull Consumer<Menu> handler) {
-            this.handler = handler;
+        public Builder configure(final @NotNull Consumer<Menu> config) {
+            this.config = config;
             return this;
         }
 
         @NotNull
         public SimpleStaticMenu build() {
-            return new SimpleStaticMenu(player, title, rows, handler);
+            return new SimpleStaticMenu(player, title, rows, config);
         }
     }
 }
