@@ -3,6 +3,8 @@ package dev.manere.imenus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public final class Slot {
     private final int page;
     private final int index;
@@ -33,6 +35,11 @@ public final class Slot {
     @Override
     public boolean equals(final @Nullable Object obj) {
         return obj instanceof Slot other && other.page == this.page && other.index == this.index;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(page, index);
     }
 
     @NotNull
