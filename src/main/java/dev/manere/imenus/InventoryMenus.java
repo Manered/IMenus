@@ -112,14 +112,14 @@ public final class InventoryMenus implements Listener {
 
             button.getAction().handle(clickEvent);
             if (clickEvent.isCancelled()) event.setCancelled(true);
-        }
 
-        for (int i = 0; i < 41; i++) {
-            final ItemStack item = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
+            for (int i = 0; i < 41; i++) {
+                final ItemStack modifiedItem = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
 
-            item.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
+                modifiedItem.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
 
-            player.getOpenInventory().getBottomInventory().setItem(i, item);
+                player.getOpenInventory().getBottomInventory().setItem(i, modifiedItem);
+            }
         }
     }
 
@@ -195,14 +195,6 @@ public final class InventoryMenus implements Listener {
             menu.getDragAction().handle(dragEvent);
 
             if (dragEvent.isCancelled()) event.setCancelled(true);
-        }
-
-        for (int i = 0; i < 41; i++) {
-            final ItemStack item = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
-
-            item.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
-
-            player.getOpenInventory().getBottomInventory().setItem(i, item);
         }
     }
 }
