@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -112,6 +113,14 @@ public final class InventoryMenus implements Listener {
             button.getAction().handle(clickEvent);
             if (clickEvent.isCancelled()) event.setCancelled(true);
         }
+
+        for (int i = 0; i < 41; i++) {
+            final ItemStack item = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
+
+            item.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
+
+            player.getOpenInventory().getBottomInventory().setItem(i, item);
+        }
     }
 
     @EventHandler
@@ -126,6 +135,14 @@ public final class InventoryMenus implements Listener {
             menu.getCloseAction().handle(closeEvent);
 
             if (closeEvent.isCancelled()) Bukkit.getScheduler().runTaskLater(plugin, () -> menu.open(player, menu.getPage()), 1L);
+        }
+
+        for (int i = 0; i < 41; i++) {
+            final ItemStack item = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
+
+            item.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
+
+            player.getOpenInventory().getBottomInventory().setItem(i, item);
         }
     }
 
@@ -178,6 +195,14 @@ public final class InventoryMenus implements Listener {
             menu.getDragAction().handle(dragEvent);
 
             if (dragEvent.isCancelled()) event.setCancelled(true);
+        }
+
+        for (int i = 0; i < 41; i++) {
+            final ItemStack item = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
+
+            item.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
+
+            player.getOpenInventory().getBottomInventory().setItem(i, item);
         }
     }
 }
