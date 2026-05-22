@@ -2,13 +2,11 @@ package dev.manere.imenus;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.manere.imenus.button.Button;
-import dev.manere.imenus.button.ButtonContext;
 import dev.manere.imenus.event.ClickEvent;
 import dev.manere.imenus.event.CloseEvent;
 import dev.manere.imenus.event.DragEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,14 +14,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 public final class InventoryMenus implements Listener {
@@ -77,124 +70,74 @@ public final class InventoryMenus implements Listener {
     }
 
     @EventHandler
-    private void handle(final @NotNull InventoryClickEvent event) {
+    public void onClick(final @NotNull InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        final Inventory inventory = event.getClickedInventory();
-        if (inventory == null) return;
+        final Inventory top = event.getView().getTopInventory();
+        if (!(top.getHolder() instanceof Menu menu)) return;
 
-        if (inventory.getHolder(false) instanceof Menu menu) {
-            Button button = null;
+        final int raw = event.getRawSlot();
 
-            final ItemStack item = event.getClickedInventory().getItem(event.getRawSlot());
-            if (item == null) return;
+        if (raw < menu.getSize()) {
+            event.setCancelled(true);
+        }
 
-            for (final Button b : menu.getButtons().values()) {
-                final String text = item.getPersistentDataContainer().get(NamespacedKey.minecraft("inventory_menus"), PersistentDataType.STRING);
-                if (text == null || text.isBlank()) continue;
+        final Slot slot = Slot.slot(menu.getPage(), raw);
+        final Button button = menu.getButtons().get(slot);
 
-                try {
-                    final UUID uuid = UUID.fromString(text);
-                    if (!uuid.equals(b.getUUID())) continue;
+        if (button == null) return;
 
-                    button = b;
-                    break;
-                } catch (final IllegalArgumentException ignored) {}
-            }
+        final ClickEvent clickEvent = new ClickEvent(menu, player, button, event.getClick());
+        button.getAction().handle(clickEvent);
 
-            if (button == null) return;
-
-            final ClickEvent clickEvent = new ClickEvent(
-                menu, player,
-                button,
-                event.getClick()
-            );
-
-            button.getAction().handle(clickEvent);
-            if (clickEvent.isCancelled()) event.setCancelled(true);
-
-            for (int i = 0; i < 41; i++) {
-                final ItemStack modifiedItem = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
-
-                modifiedItem.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
-
-                player.getOpenInventory().getBottomInventory().setItem(i, modifiedItem);
-            }
+        if (clickEvent.isCancelled()) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler
-    private void handle(final @NotNull InventoryCloseEvent event) {
+    public void onDrag(final @NotNull InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        final Inventory top = event.getView().getTopInventory();
+        if (!(top.getHolder() instanceof Menu menu)) return;
+
+        for (final int rawSlot : event.getRawSlots()) {
+            if (rawSlot < menu.getSize()) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        final DragEvent dragEvent = new DragEvent(
+            menu,
+            player,
+            event.getType(),
+            event.getNewItems(),
+            event.getRawSlots()
+        );
+
+        menu.getDragAction().handle(dragEvent);
+
+        if (dragEvent.isCancelled()) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onClose(final @NotNull InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
 
-        final Inventory inventory = event.getInventory();
+        final Inventory inv = event.getInventory();
+        if (!(inv.getHolder() instanceof Menu menu)) return;
 
-        if (inventory.getHolder(false) instanceof Menu menu) {
-            final CloseEvent closeEvent = new CloseEvent(menu, player, event.getReason());
+        final CloseEvent closeEvent = new CloseEvent(menu, player, event.getReason());
+        menu.getCloseAction().handle(closeEvent);
 
-            menu.getCloseAction().handle(closeEvent);
-
-            if (closeEvent.isCancelled()) Bukkit.getScheduler().runTaskLater(plugin, () -> menu.open(player, menu.getPage()), 1L);
-        }
-
-        for (int i = 0; i < 41; i++) {
-            final ItemStack item = Objects.requireNonNullElse(player.getOpenInventory().getBottomInventory().getItem(i), ItemStack.empty());
-
-            item.editMeta(meta -> meta.getPersistentDataContainer().remove(NamespacedKey.minecraft("inventory_menus")));
-
-            player.getOpenInventory().getBottomInventory().setItem(i, item);
-        }
-    }
-
-    @EventHandler
-    private void handle(final @NotNull InventoryDragEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-
-        final Inventory inventory = event.getInventory();
-
-        if (inventory.getHolder(false) instanceof Menu menu) {
-            ButtonContext oldCursorCtx = null;
-            ButtonContext newCursorCtx = null;
-
-            final ItemStack oldCursorItem = event.getOldCursor();
-            final ItemStack newCursorItem = event.getCursor();
-
-            for (final Map.Entry<Slot, Button> entry : menu.getButtons().entrySet()) {
-                final String text = oldCursorItem.getPersistentDataContainer().get(NamespacedKey.minecraft("inventory_menus"), PersistentDataType.STRING);
-                if (text == null || text.isBlank()) continue;
-
-                try {
-                    final UUID uuid = UUID.fromString(text);
-                    if (!uuid.equals(entry.getValue().getUUID())) continue;
-
-                    oldCursorCtx = ButtonContext.context(entry.getValue(), entry.getKey());
-                    break;
-                } catch (final IllegalArgumentException ignored) {}
-            }
-
-            if (oldCursorCtx == null) return;
-
-            if (newCursorItem != null) for (final Map.Entry<Slot, Button> entry : menu.getButtons().entrySet()) {
-                final String text = newCursorItem.getPersistentDataContainer().get(NamespacedKey.minecraft("inventory_menus"), PersistentDataType.STRING);
-                if (text == null || text.isBlank()) continue;
-
-                try {
-                    final UUID uuid = UUID.fromString(text);
-                    if (!uuid.equals(entry.getValue().getUUID())) continue;
-
-                    newCursorCtx = ButtonContext.context(entry.getValue(), entry.getKey());
-                    break;
-                } catch (final IllegalArgumentException ignored) {}
-            }
-
-            final DragEvent dragEvent = new DragEvent(
-                menu, player,
-                event.getType(), event.getNewItems(), event.getRawSlots(), oldCursorCtx, newCursorCtx
+        if (closeEvent.isCancelled()) {
+            Bukkit.getScheduler().runTask(plugin, () ->
+                menu.open(player, menu.getPage())
             );
-
-            menu.getDragAction().handle(dragEvent);
-
-            if (dragEvent.isCancelled()) event.setCancelled(true);
         }
     }
 }

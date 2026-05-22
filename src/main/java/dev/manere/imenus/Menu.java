@@ -95,14 +95,16 @@ public class Menu implements InventoryHolder {
     public Menu setButton(final @NotNull Slot slot, final @Nullable Button button) {
         if (button == null) {
             buttons.remove(slot);
-            if (this.getPage() == slot.getPage()) inventory.setItem(slot.getIndex(), null);
+            if (slot.getPage() == page) inventory.clear(slot.getIndex());
             return this;
         }
 
-        button.register();
         buttons.put(slot, button);
 
-        if (this.getPage() == slot.getPage()) inventory.setItem(slot.getIndex(), button.getItem());
+        if (slot.getPage() == page) {
+            inventory.setItem(slot.getIndex(), button.getItem());
+        }
+
         return this;
     }
 
@@ -243,33 +245,18 @@ public class Menu implements InventoryHolder {
     @NotNull
     @CanIgnoreReturnValue
     public Menu open(final @NotNull Player player, final int page) {
-        if (page > getPages()) return open(player, getPages());
         this.page = page;
 
-        getInventory().clear();
+        inventory.clear();
 
-        final PaginationItem nextPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.NEXT_PAGE).orElse(null);
-        final PaginationItem currentPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.CURRENT_PAGE).orElse(null);
-        final PaginationItem previousPageItem = InventoryMenus.API.getConfig().get(InventoryMenusOptions.PREVIOUS_PAGE).orElse(null);
-
-        if (currentPageItem != null && getPages() > 1) setPaginationButton(page, currentPageItem);
-        if (nextPageItem != null && getPage() < getPages()) setPaginationButton(page, nextPageItem);
-        if (previousPageItem != null && getPage() > 1) setPaginationButton(page, previousPageItem);
-
-        for (final Map.Entry<Slot, Button> entry : getButtons().entrySet()) {
+        for (final Map.Entry<Slot, Button> entry : buttons.entrySet()) {
             final Slot slot = entry.getKey();
-            final Button button = entry.getValue();
+            if (slot.getPage() != page) continue;
 
-            if (slot.getPage() == page) {
-                if (button != null) {
-                    getInventory().setItem(slot.getIndex(), button.getItem());
-                } else {
-                    getInventory().clear(slot.getIndex());
-                }
-            }
+            inventory.setItem(slot.getIndex(), entry.getValue().getItem());
         }
 
-        player.openInventory(getInventory());
+        player.openInventory(inventory);
         return this;
     }
 

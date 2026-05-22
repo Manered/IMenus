@@ -21,7 +21,7 @@ public final class Slot {
 
     @NotNull
     public static Slot slot(final int index) {
-        return slot(1, index);
+        return new Slot(1, index);
     }
 
     public int getPage() {
@@ -34,7 +34,9 @@ public final class Slot {
 
     @Override
     public boolean equals(final @Nullable Object obj) {
-        return obj instanceof Slot other && other.page == this.page && other.index == this.index;
+        return obj instanceof Slot other &&
+            other.page == page &&
+            other.index == index;
     }
 
     @Override
@@ -45,6 +47,6 @@ public final class Slot {
     @NotNull
     @Override
     public String toString() {
-        return "Slot[page = " + page + ", index = " + index +"]";
+        return "Slot[" + page + "," + index + "]";
     }
 }
