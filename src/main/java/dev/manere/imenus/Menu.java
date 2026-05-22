@@ -36,6 +36,12 @@ public class Menu implements InventoryHolder {
     private DragAction dragAction = event -> {};
     private int page = 1;
 
+    private boolean cancelTopInventoryClicks = false;
+    private boolean cancelPlayerInventoryClicks = false;
+    private boolean cancelTopInventoryDrags = false;
+    private boolean cancelPlayerInventoryDrags = false;
+    private boolean allowShiftClick = true;
+
     public Menu(final @NotNull Component title, final int rows) {
         this.title = title;
         this.size = rows * 9;
@@ -275,6 +281,61 @@ public class Menu implements InventoryHolder {
     @CanIgnoreReturnValue
     public Menu open(final @NotNull Player player) {
         return open(player, 1);
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu setCancelTopInventoryClicks(final boolean value) {
+        this.cancelTopInventoryClicks = value;
+        return this;
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu setCancelPlayerInventoryClicks(final boolean value) {
+        this.cancelPlayerInventoryClicks = value;
+        return this;
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu setCancelTopInventoryDrags(final boolean value) {
+        this.cancelTopInventoryDrags = value;
+        return this;
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu setCancelPlayerInventoryDrags(final boolean value) {
+        this.cancelPlayerInventoryDrags = value;
+        return this;
+    }
+
+    @NotNull
+    @CanIgnoreReturnValue
+    public Menu setAllowShiftClick(final boolean value) {
+        this.allowShiftClick = value;
+        return this;
+    }
+
+    public boolean shouldCancelTopInventoryClicks() {
+        return cancelTopInventoryClicks;
+    }
+
+    public boolean shouldCancelPlayerInventoryClicks() {
+        return cancelPlayerInventoryClicks;
+    }
+
+    public boolean shouldCancelTopInventoryDrags() {
+        return cancelTopInventoryDrags;
+    }
+
+    public boolean shouldCancelPlayerInventoryDrags() {
+        return cancelPlayerInventoryDrags;
+    }
+
+    public boolean shouldAllowShiftClick() {
+        return allowShiftClick;
     }
 
     @NotNull

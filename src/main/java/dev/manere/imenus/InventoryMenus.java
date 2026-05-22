@@ -74,25 +74,54 @@ public final class InventoryMenus implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         final Inventory top = event.getView().getTopInventory();
-        if (!(top.getHolder() instanceof Menu menu)) return;
+
+        if (!(top.getHolder(false) instanceof Menu menu)) return;
 
         final int raw = event.getRawSlot();
+        final boolean topInventory = raw < menu.getSize();
 
-        if (raw < menu.getSize()) {
+        if (event.isShiftClick() && !menu.shouldAllowShiftClick()) {
             event.setCancelled(true);
+            return;
+        }
+
+        if (topInventory) {
+            if (menu.shouldCancelTopInventoryClicks()) {
+                event.setCancelled(true);
+            }
+        } else {
+            if (menu.shouldCancelPlayerInventoryClicks()) {
+                event.setCancelled(true);
+            }
+        }
+
+        // outside inventory click
+        if (raw < 0) {
+            return;
+        }
+
+        // only top inventory buttons are handled
+        if (!topInventory) {
+            return;
         }
 
         final Slot slot = Slot.slot(menu.getPage(), raw);
         final Button button = menu.getButtons().get(slot);
 
-        if (button == null) return;
+        if (button == null) {
+            return;
+        }
 
-        final ClickEvent clickEvent = new ClickEvent(menu, player, button, event.getClick());
+        final ClickEvent clickEvent = new ClickEvent(
+            menu,
+            player,
+            button,
+            event.getClick()
+        );
+
         button.getAction().handle(clickEvent);
 
-        if (clickEvent.isCancelled()) {
-            event.setCancelled(true);
-        }
+        event.setCancelled(clickEvent.isCancelled());
     }
 
     @EventHandler
@@ -100,13 +129,26 @@ public final class InventoryMenus implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         final Inventory top = event.getView().getTopInventory();
-        if (!(top.getHolder() instanceof Menu menu)) return;
+
+        if (!(top.getHolder(false) instanceof Menu menu)) return;
+
+        boolean draggingTop = false;
+        boolean draggingBottom = false;
 
         for (final int rawSlot : event.getRawSlots()) {
             if (rawSlot < menu.getSize()) {
-                event.setCancelled(true);
-                return;
+                draggingTop = true;
+            } else {
+                draggingBottom = true;
             }
+        }
+
+        if (draggingTop && menu.shouldCancelTopInventoryDrags()) {
+            event.setCancelled(true);
+        }
+
+        if (draggingBottom && menu.shouldCancelPlayerInventoryDrags()) {
+            event.setCancelled(true);
         }
 
         final DragEvent dragEvent = new DragEvent(
